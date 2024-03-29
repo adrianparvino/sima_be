@@ -1,0 +1,12 @@
+name = "sima"
+workers_dev = true
+main = "./_build/default/bin/node/bin/main.js"
+compatibility_date = "2025-01-24"
+
+[observability.logs]
+enabled = true
+
+[[d1_databases]]
+binding = "DB"
+database_name = "sima"
+database_id = "a3e19729-1ee9-4693-af73-0732eca1d49c"

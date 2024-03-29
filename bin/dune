@@ -1,0 +1,17 @@
+(melange.emit
+ (target node)
+ (libraries jsoo_hello melange-fetch melange-json)
+ (modules
+  main
+  base64
+  text_encoder
+  task
+  hello_handler
+  hex
+  verify
+  jwt
+  score
+  progress)
+ (module_systems es6)
+ (preprocess
+  (pps melange.ppx melange-json.ppx)))
