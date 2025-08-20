@@ -1,4 +1,4 @@
-open Ppx_deriving_json_runtime.Primitives
+open Melange_json.Primitives
 
 module Unsafe = struct
   external get : 'a Js.t -> string -> 'b option = "" [@@mel.get_index]
@@ -8,7 +8,7 @@ type t = string
 type header = { alg : string; kid : string; typ : string } [@@deriving of_json]
 
 let verify jwt keys claims =
-  let open Jsoo_hello.Promise_utils.Bind in
+  let open Cf_workers.Promise_utils.Bind in
   let header, payload, signature =
     match Js.String.split ~sep:"." jwt with
     | [| header; payload; signature |] -> (header, payload, signature)

@@ -6,6 +6,10 @@ compatibility_date = "2025-01-24"
 [observability.logs]
 enabled = true
 
+[build]
+command = "dune build"
+watch_dir = "bin"
+
 [[d1_databases]]
 binding = "DB"
 database_name = "sima"

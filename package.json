@@ -10,9 +10,14 @@
   "author": "{{ authors }}",
   "license": "MIT",
   "devDependencies": {
-    "google-auth-library": "^9.15.1"
+    "google-auth-library": "^9.15.1",
+    "wrangler": "^4.31.0"
   },
   "dependencies": {
+    "ical.js": "^2.2.1",
     "js-base64": "^3.7.7"
+  },
+  "scripts": {
+    "dev": "wrangler dev"
   }
 }
