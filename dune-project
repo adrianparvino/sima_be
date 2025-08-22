@@ -4,6 +4,8 @@
 
 (name jsoo_hello)
 
+(generate_opam_files true)
+
 (source
  (github username/reponame))
 
@@ -20,6 +22,18 @@
  (name jsoo_hello)
  (synopsis "A short synopsis")
  (description "A longer description")
+ (depends
+  ocaml
+  (melange
+   (>= 5.1))
+  (dune
+   (>= 3.13))
+  cf_workers
+  ppx_deriving
+  odoc
+  melange-webapi
+  melange-json
+  cf_workers)
  (tags
   (topics "to describe" your project)))
 

@@ -1,6 +1,6 @@
 (melange.emit
  (target node)
- (libraries cf_workers melange-fetch melange-json)
+ (libraries melange.belt cf_workers melange-fetch melange-json)
  (modules main base64 text_encoder task verify jwt webcal score progress)
  (module_systems es6)
  (preprocess

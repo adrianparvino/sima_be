@@ -11,12 +11,27 @@ doc: "https://url/to/documentation"
 bug-reports: "https://github.com/username/reponame/issues"
 depends: [
   "ocaml"
-  "melange" {>= "3.0.0"}
-  "hex"
-  "ppx_jsobject_conv"
+  "melange" {>= "5.1"}
+  "dune" {>= "3.17" & >= "3.13"}
+  "cf_workers"
   "ppx_deriving"
-  "melange-json" {>= "2.0.0"}
-  "melange-fetch" {>= "0.1.0"}
-  "odoc" {with-doc}
+  "odoc"
+  "melange-webapi"
+  "melange-json"
+  "cf_workers"
+]
+build: [
+  ["dune" "subst"] {dev}
+  [
+    "dune"
+    "build"
+    "-p"
+    name
+    "-j"
+    jobs
+    "@install"
+    "@runtest" {with-test}
+    "@doc" {with-doc}
+  ]
 ]
 dev-repo: "git+https://github.com/username/reponame.git"

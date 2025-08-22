@@ -53,9 +53,9 @@ module JCal = struct
 end
 
 let rec extractVevents = function
-  | JCal.JCal ("vevent", props, _) -> props |> Seq.return
+  | JCal.JCal ("vevent", props, _) -> [| props |]
   | JCal.JCal (_, _, components) ->
-      components |> Array.to_seq |> Seq.flat_map extractVevents
+      components |. Belt.Array.flatMap extractVevents
 
 let propsToClass props =
   let uid = ref None in
@@ -76,4 +76,4 @@ let fetch url =
   let open Cf_workers.Promise_utils.Bind in
   let* response = Fetch.fetch url in
   let+ text = response |> Fetch.Response.text in
-  text |> JCal.parse |> extractVevents |> Seq.map propsToClass
+  text |> JCal.parse |> extractVevents |. Belt.Array.map propsToClass

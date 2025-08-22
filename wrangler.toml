@@ -7,8 +7,11 @@ compatibility_date = "2025-01-24"
 enabled = true
 
 [build]
-command = "dune build"
+command = "dune build @@default @ocaml-index"
 watch_dir = "bin"
+
+[triggers]
+crons = ["*/5 * * * *"]
 
 [[d1_databases]]
 binding = "DB"

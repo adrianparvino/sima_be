@@ -31,7 +31,7 @@ let list d1 email : t array Js.Promise.t =
   in
   tasks.results
 
-let add d1 task =
+let add d1 tasks =
   let open Cf_workers.D1 in
   let prepared_statement =
     d1
@@ -39,13 +39,17 @@ let add d1 task =
          {|INSERT INTO tasks (name, deadline, ext_id) VALUES (?, ?, ?)
            ON CONFLICT (ext_id) DO UPDATE SET name = excluded.name, deadline = excluded.deadline|}
   in
-  let bound_prepared_statement =
-    prepared_statement
-    |. bind
-         Bind.
-           [| string task.name; string task.deadline; null string task.ext_id |]
+  let bound_prepared_statements =
+    tasks
+    |> Array.map @@ fun task ->
+       prepared_statement
+       |. bind
+            Bind.
+              [|
+                string task.name; string task.deadline; null string task.ext_id;
+              |]
   in
-  bound_prepared_statement |. run
+  d1 |. batch bound_prepared_statements
 
 let finish d1 email task_id =
   let open Cf_workers.D1 in
