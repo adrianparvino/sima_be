@@ -33,7 +33,13 @@
   odoc
   melange-webapi
   melange-json
-  cf_workers)
+  cf_workers
+  (reason-react
+   (>= 0.13.0))
+  reason-react-ppx
+  (opam-check-npm-deps :with-dev-setup)
+  (ocaml-lsp-server :with-dev-setup)
+  (dot-merlin-reader :with-dev-setup))
  (tags
   (topics "to describe" your project)))
 

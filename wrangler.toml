@@ -2,18 +2,33 @@ name = "sima"
 workers_dev = true
 main = "./_build/default/bin/node/bin/main.js"
 compatibility_date = "2025-01-24"
+routes = [
+  { pattern = "sima.adrianpar.vin", custom_domain = true },
+]
+
 
 [observability.logs]
 enabled = true
 
-[build]
-command = "dune build @@default @ocaml-index"
-watch_dir = "bin"
+[assets]
+directory = "./_build/default/frontend/dist"
 
 [triggers]
 crons = ["*/5 * * * *"]
 
+[build]
+command = "dune build @@default @ocaml-index"
+watch_dir = ["bin", "frontend", ".env"]
+
 [[d1_databases]]
+binding = "DB"
+database_name = "sima"
+database_id = "a3e19729-1ee9-4693-af73-0732eca1d49c"
+
+[env.production.build]
+command = "dune build @@default --profile production"
+
+[[env.production.d1_databases]]
 binding = "DB"
 database_name = "sima"
 database_id = "a3e19729-1ee9-4693-af73-0732eca1d49c"

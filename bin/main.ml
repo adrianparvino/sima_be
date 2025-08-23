@@ -36,12 +36,12 @@ module Worker = Cf_workers.Workers.Make (struct
   let default_headers _env =
     let headers = Cf_workers.Headers.empty () in
     (* if Cf_workers.Workers.Env.get env "DISABLE_CORS" = Some "true" then ( *)
-    if true then (
+    (* if true then (
       headers |> Cf_workers.Headers.set "access-control-allow-origin" "*";
       headers
       |> Cf_workers.Headers.set "access-control-allow-credentials" "true";
       headers |> Cf_workers.Headers.set "access-control-allow-headers" "*";
-      headers |> Cf_workers.Headers.set "access-control-allow-methods" "*");
+      headers |> Cf_workers.Headers.set "access-control-allow-methods" "*"); *)
     headers
 
   let list (env : Cf_workers.Workers.Env.t) email =
@@ -84,18 +84,19 @@ module Worker = Cf_workers.Workers.Make (struct
     in
     let path =
       (URL.make url).pathname
+      |> Js.String.replaceByRe ~regexp:[%re "/\\/$/"] ~replacement:""
       |> Js.String.match_ ~regexp:[%re "/\\/([^/]*)/g"]
       |> Option.get |> Array.map Option.get
     in
     match (path, req) with
-    | [| "/" |], Get ->
+    | [| "/api" |], Get ->
         let email =
           verified |. Js.Dict.get "email" |> Option.get |> Js.Json.decodeString
           |> Option.get
         in
         list env email
-    | [| "/scores" |], Get -> list_scores env
-    | [| task_id; "/finish" |], Post _ ->
+    | [| "/api"; "/scores" |], Get -> list_scores env
+    | [| "/api"; task_id; "/finish" |], Post _ ->
         let email =
           verified |. Js.Dict.get "email" |> Option.get |> Js.Json.decodeString
           |> Option.get

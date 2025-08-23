@@ -3,3 +3,4 @@ _build
 *.cmo
 node_modules
 _opam
+.env.production
