@@ -1,5 +1,6 @@
 import { defineConfig } from "@farmfe/core";
 import farmPluginPostcss from "@farmfe/js-plugin-postcss";
+import farmPluginTailwind from "@farmfe/js-plugin-tailwindcss"
 
 export default defineConfig({
   compilation: {

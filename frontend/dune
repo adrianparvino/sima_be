@@ -27,50 +27,57 @@
  ; https://melange.re/v2.0.0/build-system/#commonjs-or-es6-modules
  (module_systems es6))
 
+(subdir
+ output
+ (subdir
+  frontend
+  (rule
+   (targets index.html index.css)
+   (action
+    (progn
+     (copy %{dep:../../index.html} index.html)
+     (copy %{dep:../../index.css} index.css)))))
+ (rule
+  (targets .env farm.config.ts postcss.config.mjs tailwind.config.js)
+  (action
+   (progn
+    (copy %{dep:../../.env} .env)
+    (copy %{dep:../../farm.config.ts} farm.config.ts)
+    (copy %{dep:../../postcss.config.mjs} postcss.config.mjs)
+    (copy %{dep:../../tailwind.config.js} tailwind.config.js)))))
+
 (rule
- (target dist)
+ (targets dist)
+ (alias all)
  (enabled_if
   (<> %{profile} "production"))
  (deps
   (alias melange)
-  (file index.css)
-  (file index.html)
-  (file ../.env)
-  (file ../farm.config.ts)
-  (file ../postcss.config.mjs)
-  (file ../tailwind.config.js))
+  (file output/frontend/index.css)
+  (file output/frontend/index.html)
+  (file output/.env)
+  (file output/farm.config.ts)
+  (file output/postcss.config.mjs)
+  (file output/tailwind.config.js))
  (action
-  (progn
-   (run cp index.html output/frontend/)
-   (run cp index.css output/frontend/)
-   (run cp ../.env output/)
-   (run cp ../farm.config.ts output/)
-   (run cp ../postcss.config.mjs output/)
-   (run cp ../tailwind.config.js output/)
-   (chdir
-    output
-    (run farm build -i frontend/index.html -o ../dist)))))
+  (chdir
+   output
+   (run farm build -i frontend/index.html -o ../dist))))
 
 (rule
- (target dist)
+ (targets dist)
+ (alias all)
  (enabled_if
   (= %{profile} "production"))
  (deps
   (alias melange)
-  (file index.css)
-  (file index.html)
-  (file ../.env)
-  (file ../farm.config.ts)
-  (file ../postcss.config.mjs)
-  (file ../tailwind.config.js))
+  (file output/frontend/index.css)
+  (file output/frontend/index.html)
+  (file output/.env)
+  (file output/farm.config.ts)
+  (file output/postcss.config.mjs)
+  (file output/tailwind.config.js))
  (action
-  (progn
-   (run cp index.html output/frontend/)
-   (run cp index.css output/frontend/)
-   (run cp ../.env output/)
-   (run cp ../farm.config.ts output/)
-   (run cp ../postcss.config.mjs output/)
-   (run cp ../tailwind.config.js output/)
-   (chdir
-    output
-    (run farm build -m production -i frontend/index.html -o ../dist)))))
+  (chdir
+   output
+   (run farm build -m production -i frontend/index.html -o ../dist))))

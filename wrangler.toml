@@ -17,8 +17,11 @@ directory = "./_build/default/frontend/dist"
 crons = ["*/5 * * * *"]
 
 [build]
-command = "dune build @@default @ocaml-index"
+command = "dune build @@default @ocaml-index --ignore-lock-dir"
 watch_dir = ["bin", "frontend", ".env"]
+
+[vars]
+GOOGLE_CLIENT_ID = "528954406212-vvee6ekgfilrbvh5udcgsbh1i57jnjrg.apps.googleusercontent.com "
 
 [[d1_databases]]
 binding = "DB"
@@ -28,7 +31,11 @@ database_id = "a3e19729-1ee9-4693-af73-0732eca1d49c"
 [env.production.build]
 command = "dune build @@default --profile production"
 
+[env.production.vars]
+GOOGLE_CLIENT_ID = "528954406212-vqdmau2l9dss3vcg02g9cm3h7t3p6es0.apps.googleusercontent.com"
+
 [[env.production.d1_databases]]
 binding = "DB"
-database_name = "sima"
-database_id = "a3e19729-1ee9-4693-af73-0732eca1d49c"
+database_name = "sima-production"
+database_id = "f92dfcfc-1668-40e9-9c72-246ea41cda54"
+

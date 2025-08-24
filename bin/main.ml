@@ -19,37 +19,21 @@ let scheduled (env : Cf_workers.Workers.Env.t) =
              in
              Task.[| { name; deadline; ext_id = Some ext_id } |]
          | None -> [||])
-    |> Task.add d1
+    |> Task.Repository.add d1
   in
   ()
 
 module Worker = Cf_workers.Workers.Make (struct
   module ControllerResponse = struct
-    type t = Tasks of Task.t array | Scores of Score.t array | Empty
+    type t = Scores of Score.t array
 
     let render = function
-      | Tasks tasks -> Js.Json.stringifyAny tasks |> Option.get
       | Scores scores -> Js.Json.stringifyAny scores |> Option.get
-      | _ -> "{}"
   end
 
   let default_headers _env =
     let headers = Cf_workers.Headers.empty () in
-    (* if Cf_workers.Workers.Env.get env "DISABLE_CORS" = Some "true" then ( *)
-    (* if true then (
-      headers |> Cf_workers.Headers.set "access-control-allow-origin" "*";
-      headers
-      |> Cf_workers.Headers.set "access-control-allow-credentials" "true";
-      headers |> Cf_workers.Headers.set "access-control-allow-headers" "*";
-      headers |> Cf_workers.Headers.set "access-control-allow-methods" "*"); *)
     headers
-
-  let list (env : Cf_workers.Workers.Env.t) email =
-    let open Cf_workers.Promise_utils.Bind in
-    let d1 = env |. Cf_workers.Workers.Env.getD1 "DB" |> Option.get in
-
-    let+ tasks = Task.list d1 email in
-    ControllerResponse.Tasks tasks
 
   let list_scores (env : Cf_workers.Workers.Env.t) =
     let open Cf_workers.Promise_utils.Bind in
@@ -57,13 +41,6 @@ module Worker = Cf_workers.Workers.Make (struct
 
     let+ scores = Score.list d1 in
     ControllerResponse.Scores scores
-
-  let finish (env : Cf_workers.Workers.Env.t) email task_id =
-    let open Cf_workers.Promise_utils.Bind in
-    let d1 = env |. Cf_workers.Workers.Env.getD1 "DB" |> Option.get in
-
-    let+ _ = Task.finish d1 email task_id in
-    ControllerResponse.Empty
 
   let handle_ headers env url req =
     let open Cf_workers.Promise_utils.Bind in
@@ -76,16 +53,16 @@ module Worker = Cf_workers.Workers.Make (struct
       | [| "Bearer"; token |] -> token
       | _ -> failwith "Invalid authorization header"
     in
+    let google_client_id = Cf_workers.Workers.Env.get env "GOOGLE_CLIENT_ID" |> Option.get in
     let* jwk = Fetch.fetch "https://www.googleapis.com/oauth2/v3/certs" in
     let* jwk = jwk |> Fetch.Response.json in
     let jwk = jwk |> Verify.response_of_json in
     let* verified =
-      Jwt.verify bearer jwk.keys [%mel.obj { hd = "up.edu.ph" }]
+      Jwt.verify bearer jwk.keys [%mel.obj { hd = "up.edu.ph"; aud = google_client_id }]
     in
     let path =
       (URL.make url).pathname
-      |> Js.String.replaceByRe ~regexp:[%re "/\\/$/"] ~replacement:""
-      |> Js.String.match_ ~regexp:[%re "/\\/([^/]*)/g"]
+      |> Js.String.match_ ~regexp:[%re "/\\/([^/]+)/g"]
       |> Option.get |> Array.map Option.get
     in
     match (path, req) with
@@ -94,19 +71,17 @@ module Worker = Cf_workers.Workers.Make (struct
           verified |. Js.Dict.get "email" |> Option.get |> Js.Json.decodeString
           |> Option.get
         in
-        list env email
-    | [| "/api"; "/scores" |], Get -> list_scores env
+        Task.Controller.list env email
+    | [| "/api"; "/scores" |], Get ->
+        let+ scores = list_scores env in
+        ControllerResponse.render scores
     | [| "/api"; task_id; "/finish" |], Post _ ->
         let email =
           verified |. Js.Dict.get "email" |> Option.get |> Js.Json.decodeString
           |> Option.get
         in
-        let task_id =
-          (task_id |> Js.String.match_ ~regexp:[%re "/\\/(\\d+)/"] |> Option.get).(
-          1)
-          |> Option.get |> int_of_string
-        in
-        finish env email task_id
+        let task_id = task_id |> Js.String.slice ~start:1 in
+        Task.Controller.finish env email task_id
     | _ -> failwith "Invalid path"
 
   let handle headers env url req =
@@ -119,8 +94,7 @@ module Worker = Cf_workers.Workers.Make (struct
         |> Js.Promise.resolve
     | _ ->
         let+ x = handle_ headers env url req in
-        x |> ControllerResponse.render
-        |> Cf_workers.Workers.Response.create ~headers:(default_headers env)
+        x |> Cf_workers.Workers.Response.create ~headers:(default_headers env)
 end)
 
 let default =

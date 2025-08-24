@@ -2,6 +2,8 @@
 
 (using melange 0.1)
 
+(using directory-targets 0.1)
+
 (name jsoo_hello)
 
 (generate_opam_files true)

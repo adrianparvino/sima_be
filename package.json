@@ -13,10 +13,11 @@
     "@farmfe/cli": "^1.0.5",
     "@farmfe/core": "^1.7.11",
     "@farmfe/js-plugin-postcss": "^1.12.0",
+    "@farmfe/js-plugin-tailwindcss": "^0.0.20",
     "@farmfe/runtime-plugin-import-meta": "^0.2.3",
     "@tailwindcss/postcss": "^4.1.12",
     "postcss": "^8.5.6",
-    "tailwindcss": "^4.1.12",
+    "tailwindcss": "<=4.0.14",
     "wrangler": "^4.31.0"
   },
   "dependencies": {
@@ -29,7 +30,7 @@
   },
   "scripts": {
     "dune": "dune",
-    "dev": "wrangler dev --live-reload",
+    "dev": "wrangler dev --live-reload --test-scheduled",
     "deploy": "wrangler deploy -e production"
   }
 }
